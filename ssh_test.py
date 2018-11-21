@@ -1,5 +1,5 @@
 #!/usr/local/python27/bin/python3.7
-
+#authors : xyy
 import xlrd
 import paramiko
 import logging
@@ -37,23 +37,25 @@ def ssh_connect(host,pwd):
         s = paramiko.SSHClient()
         paramiko.util.log_to_file('paramiko.log')
         s.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
+        logger.info(host + "  with passwd: " + pwd.center(20) +"len:   "+str(len(pwd)).center(10) )
         s.connect(
                 hostname=host,
                 port=22,
                 username='ampmon',
                 password=pwd,
-                timeout=2)
-    
+                timeout=5,
+                allow_agent=False,
+                look_for_keys=False)
+    except Exception as e:
+                logger.error(host + "  with passwd: " + pwd.center(20) +"len:   "+str(len(pwd)).center(10) + str(e))
+                flag = 0  
     except paramiko.ssh_exception.AuthenticationException:
                 logger.error("host:" + host + "  with passwd: " + pwd + " not match")
                 flag = 0
     except paramiko.ssh_exception.SSHException:
                 logger.error("host:" + host + " SSH connect fail   /"+str(e))
                 flag = 0
-    except Exception as e:
-                logger.error(host + "  with passwd: " + pwd.center(20) +"len:   "+str(len(pwd)).center(10) + str(e))
-                flag = 0  
+
     
     s.close()
     return flag
