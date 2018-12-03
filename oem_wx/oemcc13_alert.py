@@ -1,11 +1,21 @@
 ﻿# -*- coding:utf-8 -*-
+# oem13c 告警推送微信
 import sys
+sys.path.append("./src/")
 import os
 from selenium import webdriver
 from requests import Session
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
-import weixin as WeixinCP
+
 from time import sleep
+
+import random
+
+from CorpApi import *
+from TestConf import * 
+
+
+
 default_encoding = 'utf-8'
 if sys.getdefaultencoding() != default_encoding:
     reload(sys)
@@ -80,15 +90,31 @@ if len(wxPostList) > 0 :
         #避免信息超过企业号信息允许的最大长度，每10条告警信息推送一次
         if j == 9 or i ==  (len(wxPostList) - 1):
             #需要将信息转换成utf-8格式
-            wxMsg = wxMsg.encode('utf-8')
-            weixinCP = WeixinCP.Weixin()
-            weixinCP.get_token()
-            msg = weixinCP.send_data(toUser, wxMsg)
+            # wxMsg = wxMsg.encode('utf-8')
+            api = CorpApi(TestConf['CORP_ID'], TestConf['APP_SECRET'])
+            try :
+                response = api.httpCall(
+                CORP_API_TYPE['MESSAGE_SEND'],
+            {
+                "touser": "XiongYouYong",
+                "agentid": 1000002,
+                'msgtype' : 'text',
+                'climsgid' : 'climsgidclimsgid_%f' % (random.random()),
+                'text' : {
+                    'content':wxMsg,
+                },
+                'safe' : 0,
+            })
+                print(response)
+            except ApiException as e :
+                print(e.errCode, e.errMsg)       
+            # weixinCP.get_token()
+            # msg = weixinCP.send_data(toUser, wxMsg)
             wxMsg = ''
             j = 0
         j = j + 1
-else:
-    wxMsg = wxMsg +  '所有**机房数据库无任何告警信息！'
-    weixinCP = WeixinCP.Weixin()
-    weixinCP.get_token()
-    msg = weixinCP.send_data(toUser, wxMsg)
+# else:
+#     wxMsg = wxMsg +  '所有**机房数据库无任何告警信息！'
+#     weixinCP = WeixinCP.Weixin()
+#     weixinCP.get_token()
+#     msg = weixinCP.send_data(toUser, wxMsg)

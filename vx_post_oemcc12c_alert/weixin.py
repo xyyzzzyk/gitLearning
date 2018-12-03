@@ -43,8 +43,8 @@ class Weixin(object):
             "safe": "0"
         }
         send_data = json.dumps(self.send_values, ensure_ascii=False)
-        send_request = urllib2.Request(self.send_url, send_data)
-        response = urllib2.urlopen(send_request)
+        send_request = urllib.Request(self.send_url, send_data)
+        response = urllib.urlopen(send_request)
         msg = response.read()
         print(userid + ':' + msg)
         return msg
